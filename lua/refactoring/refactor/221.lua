@@ -74,7 +74,14 @@ local function get_node_to_inline(identifiers, bufnr)
     return node_to_inline, identifier_pos
 end
 
+---@param declarator_node TSNode
+---@param node_to_rename TSNode
+---@param refactor Refactor
 local function get_declaration_type(declarator_node, node_to_rename, refactor)
+    if not refactor.ts:has_types() then
+        return nil
+    end
+
     local all_types = refactor.ts:get_local_types(declarator_node)
 
     local old_name =

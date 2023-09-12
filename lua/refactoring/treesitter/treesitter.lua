@@ -290,6 +290,11 @@ function TreeSitter:class_support()
     return setting_present(self.valid_class_nodes)
 end
 
+function TreeSitter:has_types()
+    return not (self.ident_with_type == nil)
+        and setting_present(self.ident_with_type)
+end
+
 ---@param scope TSNode
 ---@return string|nil
 function TreeSitter:get_class_name(scope)
