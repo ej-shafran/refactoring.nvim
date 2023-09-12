@@ -33,10 +33,15 @@ local function java_func_args(opts)
 end
 
 local function java_constant(opts)
+    local prefix = "var"
+    if opts.type ~= nil then
+        prefix = opts.type
+    end
+
     local constant_string_pattern
 
     if opts.multiple then
-        constant_string_pattern = "var "
+        constant_string_pattern = prefix .. " "
 
         for idx, identifier in pairs(opts.identifiers) do
             if idx == #opts.identifiers then
@@ -51,7 +56,7 @@ local function java_constant(opts)
         constant_string_pattern = constant_string_pattern .. ";\n"
     else
         if not opts.statement then
-            opts.statement = "var %s = %s;"
+            opts.statement = prefix .. " %s = %s;"
         end
 
         constant_string_pattern = string.format(

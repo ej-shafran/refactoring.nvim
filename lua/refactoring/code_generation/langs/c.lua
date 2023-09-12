@@ -35,10 +35,15 @@ local function c_func_args(opts)
 end
 
 local function c_constant(opts)
+    local prefix = "INSERT_TYPE_HERE"
+    if opts.type ~= nil then
+        prefix = opts.type
+    end
+
     local constant_string_pattern
 
     if opts.multiple then
-        constant_string_pattern = "INSERT_TYPE_HERE "
+        constant_string_pattern = prefix .. " "
 
         for idx, identifier in pairs(opts.identifiers) do
             if idx == #opts.identifiers then
@@ -53,7 +58,7 @@ local function c_constant(opts)
         constant_string_pattern = constant_string_pattern .. ";\n"
     else
         if not opts.statement then
-            opts.statement = "INSERT_TYPE_HERE %s = %s;"
+            opts.statement = prefix .. " %s = %s;"
         end
 
         constant_string_pattern = string.format(

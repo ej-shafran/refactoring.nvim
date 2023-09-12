@@ -55,7 +55,7 @@ local default_printf_statements = {}
 local default_print_var_statements = {}
 local default_extract_var_statements = {}
 
----@alias variable_opts {multiple: boolean?, identifiers: string[]?, values: string[]?, statement: string|nil|boolean, name: string|nil|string[], value: string?, is_mut: boolean?}
+---@alias variable_opts {multiple: boolean?, identifiers: string[]?, values: string[]?, statement: string|nil|boolean, name: string|nil|string[], value: string?, is_mut: boolean?, type: string?}
 ---@alias call_function_opts func_params
 ---@alias function_opts func_params
 ---@alias special_var_opts {region_node_type: string}

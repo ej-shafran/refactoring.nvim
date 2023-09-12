@@ -107,6 +107,11 @@ local function get_inline_text_edits(
         end
     end
 
+    local all_types = refactor.ts:get_local_types(declarator_node)
+    local old_name =
+        utils.trim(vim.treesitter.get_node_text(node_to_rename, refactor.bufnr)) --[[@as string]]
+    local type = all_types[old_name]
+
     local value_node_to_rename = all_values[identifier_pos]
     local value_text =
         vim.treesitter.get_node_text(value_node_to_rename, refactor.bufnr)
@@ -121,6 +126,7 @@ local function get_inline_text_edits(
             is_mut = refactor.ts.is_mut(
                 vim.treesitter.get_node_text(declarator_node, refactor.bufnr)
             ),
+            type = type,
         })
         table.insert(
             text_edits,
