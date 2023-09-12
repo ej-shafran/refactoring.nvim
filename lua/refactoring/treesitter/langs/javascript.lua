@@ -3,6 +3,7 @@ local Nodes = require("refactoring.treesitter.nodes")
 local InlineNode = Nodes.InlineNode
 local StringNode = Nodes.StringNode
 local FieldNode = Nodes.FieldNode
+local utils = require("refactoring.utils")
 
 ---@type TreeSitterInstance
 local JavaScript = {}
@@ -87,6 +88,13 @@ function JavaScript.new(bufnr, ft)
 
             InlineNode("(arrow_function (statement_block (_) @tmp_capture))"),
         },
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "const "
+            )
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end
