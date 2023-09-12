@@ -31,6 +31,7 @@ local Region = require("refactoring.region")
 ---@field caller_args InlineNodeFunc[] nodes that are arguments passed to a function when it's called
 ---@field return_statement InlineNodeFunc[] nodes that are return statements
 ---@field is_return_statement fun(statement: string): boolean function to check if a statement is a return statement
+---@field is_mut fun(declaration: string): boolean function to check if a declaration is a mutable declaration
 
 --- The following fields act similar to a cursor
 ---@class TreeSitter: TreeSitterLanguageConfig

@@ -67,13 +67,21 @@ local function typescript_function(opts)
     )
 end
 
----@param opts constant_opts
+---@param opts variable_opts
 ---@return string
-local function typescript_constant(opts)
+local function typescript_variable(opts)
+    local prefix
+
+    if opts.is_mut then
+        prefix = "let"
+    else
+        prefix = "const"
+    end
+
     local constant_string_pattern
 
     if opts.multiple then
-        constant_string_pattern = "const "
+        constant_string_pattern = prefix .. " "
 
         for idx, identifier in pairs(opts.identifiers) do
             if idx == #opts.identifiers then
@@ -81,14 +89,14 @@ local function typescript_constant(opts)
                     .. string.format("%s = %s", identifier, opts.values[idx])
             else
                 constant_string_pattern = constant_string_pattern
-                    .. string.format("%s = %s,", identifier, opts.values[idx])
+                    .. string.format("%s = %s, ", identifier, opts.values[idx])
             end
         end
 
         constant_string_pattern = constant_string_pattern .. ";\n"
     else
         if not opts.statement then
-            opts.statement = "const %s = %s;"
+            opts.statement = prefix .. " %s = %s;"
         end
 
         constant_string_pattern = string.format(
@@ -119,8 +127,8 @@ local typescript = {
         return string.format("// %s", statement)
     end,
     -- The constant can be destructured
-    constant = function(opts)
-        return typescript_constant(opts)
+    variable = function(opts)
+        return typescript_variable(opts)
     end,
 
     pack = function(names)

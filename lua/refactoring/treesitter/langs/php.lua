@@ -90,6 +90,9 @@ function Php.new(bufnr, ft)
         should_check_parent_node = function(parent_type)
             return vim.tbl_contains(special_nodes, parent_type)
         end,
+        is_mut = function()
+            return true
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end

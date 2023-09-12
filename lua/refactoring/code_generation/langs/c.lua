@@ -89,7 +89,7 @@ local c = {
             code_utils.stringify_code(opts.body)
         )
     end,
-    constant = function(opts)
+    variable = function(opts)
         return c_constant(opts)
     end,
     call_function = cpp.call_function,

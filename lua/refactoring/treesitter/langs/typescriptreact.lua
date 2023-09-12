@@ -4,6 +4,7 @@ local FieldNode = Nodes.FieldNode
 local StringNode = Nodes.StringNode
 local InlineNode = Nodes.InlineNode
 local InlineFilteredNode = Nodes.InlineFilteredNode
+local utils = require("refactoring.utils")
 
 local special_nodes = {
     "jsx_element",
@@ -113,6 +114,13 @@ function TypescriptReact.new(bufnr, ft)
         ---@return boolean
         should_check_parent_node = function(parent_type)
             return vim.tbl_contains(special_nodes, parent_type)
+        end,
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "const "
+            )
         end,
     }
     local ts = TreeSitter:new(config, bufnr)

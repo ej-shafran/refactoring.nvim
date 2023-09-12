@@ -4,6 +4,7 @@ local FieldNode = Nodes.FieldNode
 local StringNode = Nodes.StringNode
 local InlineNode = Nodes.InlineNode
 local InlineFilteredNode = Nodes.InlineFilteredNode
+local utils = require("refactoring.utils")
 
 ---@type TreeSitterInstance
 local Typescript = {}
@@ -103,6 +104,13 @@ function Typescript.new(bufnr, ft)
             ),
             InlineNode("(arrow_function (statement_block (_) @tmp_capture))"),
         },
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "const "
+            )
+        end,
     }
     local ts = TreeSitter:new(config, bufnr)
 

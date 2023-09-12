@@ -99,6 +99,9 @@ function Python.new(bufnr, ft)
             InlineNode("(function_definition (block (_) @tmp_capture))"),
         },
         include_end_of_line = true,
+        is_mut = function()
+            return true
+        end,
     }
     local ts = TreeSitter:new(config, bufnr)
 

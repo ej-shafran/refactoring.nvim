@@ -111,7 +111,7 @@ void %s(%s) {
             code_utils.stringify_code(opts.body)
         )
     end,
-    constant = function(opts)
+    variable = function(opts)
         return cpp_constant(opts)
     end,
     call_function = function(opts)

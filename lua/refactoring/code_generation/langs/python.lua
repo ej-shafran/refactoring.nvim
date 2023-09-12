@@ -80,7 +80,7 @@ end
 
 ---@type code_generation
 local python = {
-    constant = function(opts)
+    variable = function(opts)
         return python_constant(opts)
     end,
     ["return"] = function(code)

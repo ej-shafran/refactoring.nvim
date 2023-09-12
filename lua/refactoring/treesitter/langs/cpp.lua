@@ -7,6 +7,7 @@ local TakeFirstNode = Nodes.TakeFirstNode
 local QueryNode = Nodes.QueryNode
 local InlineNode = Nodes.InlineNode
 local InlineFilteredNode = Nodes.InlineFilteredNode
+local utils = require("refactoring.utils")
 
 ---@type TreeSitterInstance
 local Cpp = {}
@@ -97,6 +98,13 @@ function Cpp.new(bufnr, ft)
             ),
         },
         require_param_types = true,
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "const "
+            )
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end

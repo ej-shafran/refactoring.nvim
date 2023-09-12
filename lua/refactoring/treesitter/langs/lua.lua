@@ -116,6 +116,9 @@ function Lua.new(bufnr, ft)
                 "return"
             )
         end,
+        is_mut = function()
+            return true
+        end
     }
     return TreeSitter:new(config, bufnr)
 end

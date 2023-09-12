@@ -80,7 +80,7 @@ local tsx = {
     default_print_var_statement = ts.default_print_var_statement,
     print_var = ts.print_var,
     comment = ts.comment,
-    constant = ts.constant,
+    variable = ts.variable,
     special_var = tsx_special_var,
     pack = ts.pack,
 

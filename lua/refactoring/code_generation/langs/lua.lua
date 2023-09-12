@@ -56,7 +56,7 @@ local lua = {
     print_var = function(opts)
         return string.format(opts.statement, opts.prefix, opts.var)
     end,
-    constant = function(opts)
+    variable = function(opts)
         return lua_constant(opts)
     end,
     ["function"] = function(opts)

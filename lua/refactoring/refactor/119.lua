@@ -33,7 +33,7 @@ end
 local function get_new_var_text(extract_node_text, refactor, var_name, region)
     local statement =
         refactor.config:get_extract_var_statement(refactor.filetype)
-    local base_text = refactor.code.constant({
+    local base_text = refactor.code.variable({
         name = var_name,
         value = extract_node_text,
         statement = statement,
@@ -191,7 +191,7 @@ end
 
 ---@param refactor Refactor
 local function ensure_code_gen_119(refactor)
-    local list = { "constant" }
+    local list = { "variable" }
 
     return ensure_code_gen(refactor, list)
 end

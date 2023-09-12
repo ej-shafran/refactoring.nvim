@@ -231,8 +231,10 @@ describe("TreeSitter", function()
         assert.are.same(false, status)
         local user_error = string.find(err, "Invalid query: 'This should fail'")
         assert(user_error ~= nil)
-        local query_error =
-            string.find(err, "Query error at 1:1. Invalid syntax")
+        local query_error = string.find(
+            err,
+            "query: invalid syntax at position 0 for language typescript"
+        )
         assert(query_error ~= nil)
     end)
 
@@ -247,8 +249,10 @@ describe("TreeSitter", function()
         local user_error =
             string.find(err, "Invalid query: 'This should fail @tmp_capture'")
         assert(user_error ~= nil)
-        local query_error =
-            string.find(err, "Query error at 1:1. Invalid syntax")
+        local query_error = string.find(
+            err,
+            "query: invalid syntax at position 0 for language typescript"
+        )
         assert(query_error ~= nil)
     end)
 

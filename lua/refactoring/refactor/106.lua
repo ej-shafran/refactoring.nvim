@@ -283,13 +283,13 @@ local function get_func_call(refactor, extract_params)
             #extract_params.return_vals > 1
             and exception_languages[refactor.filetype] == nil
         then
-            func_call = refactor.code.constant({
+            func_call = refactor.code.variable({
                 multiple = true,
                 identifiers = extract_params.return_vals,
                 values = { func_call },
             })
         else
-            func_call = refactor.code.constant({
+            func_call = refactor.code.variable({
                 name = extract_params.return_vals,
                 value = func_call,
             })
@@ -498,7 +498,7 @@ local ensure_code_gen_list = {
     "return",
     "pack",
     "call_function",
-    "constant",
+    "variable",
     "function",
     "function_return",
     "terminate",

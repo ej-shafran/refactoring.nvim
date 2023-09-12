@@ -113,6 +113,13 @@ function Golang.new(bufnr, ft)
                 "return"
             )
         end,
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "const "
+            )
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end

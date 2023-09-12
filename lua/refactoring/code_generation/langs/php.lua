@@ -69,7 +69,7 @@ local php = {
     comment = function(statement)
         return string.format("// %s", statement)
     end,
-    constant = function(opts)
+    variable = function(opts)
         if not opts.statement then
             opts.statement = "%s = %s;"
         end

@@ -144,7 +144,7 @@ local function get_params_as_constants(refactor, indent_space, keys, values)
     ---@type string[]
     local constants = {}
     for idx, _ in ipairs(values) do
-        local constant = refactor.code.constant({
+        local constant = refactor.code.variable({
             name = keys[idx],
             value = values[idx],
         })

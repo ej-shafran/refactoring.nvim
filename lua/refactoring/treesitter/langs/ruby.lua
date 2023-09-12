@@ -66,6 +66,9 @@ function Ruby.new(bufnr, ft)
             method = FieldNode("name"),
             singleton_method = FieldNode("name"),
         },
+        is_mut = function()
+            return true
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end

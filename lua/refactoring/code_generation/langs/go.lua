@@ -160,7 +160,7 @@ local go = {
     print = function(opts)
         return string.format(opts.statement, opts.content)
     end,
-    constant = function(opts)
+    variable = function(opts)
         return constant(opts)
     end,
     ["return"] = function(code)

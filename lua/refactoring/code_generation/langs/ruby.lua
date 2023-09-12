@@ -51,7 +51,7 @@ local ruby = {
     comment = function(statement)
         return string.format("# %s", statement)
     end,
-    constant = function(opts)
+    variable = function(opts)
         return ruby_constant(opts)
     end,
     ["function"] = ruby_function,

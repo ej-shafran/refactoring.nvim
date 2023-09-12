@@ -7,6 +7,7 @@ local TakeFirstNode = Nodes.TakeFirstNode
 local QueryNode = Nodes.QueryNode
 local InlineNode = Nodes.InlineNode
 local InlineFilteredNode = Nodes.InlineFilteredNode
+local utils = require("refactoring.utils")
 
 ---@type TreeSitterInstance
 local Java = {}
@@ -87,6 +88,13 @@ function Java.new(bufnr, ft)
         require_class_name = true,
         require_class_type = true,
         require_param_types = true,
+        is_mut = function(declaration)
+            --stylua: ignore start
+            return not vim.startswith(
+                utils.trim(declaration)--[[@as string]],
+                "final "
+            )
+        end,
     }
     return TreeSitter:new(config, bufnr)
 end
