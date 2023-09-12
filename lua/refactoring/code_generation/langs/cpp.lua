@@ -37,6 +37,9 @@ local function cpp_constant(opts)
     if opts.type ~= nil then
         prefix = opts.type
     end
+    if opts.is_mut == false then
+        prefix = "const " .. prefix
+    end
 
     local constant_string_pattern
 
