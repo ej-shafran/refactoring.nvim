@@ -74,6 +74,25 @@ local function get_node_to_inline(identifiers, bufnr)
     return node_to_inline, identifier_pos
 end
 
+local function get_declaration_type(declarator_node, node_to_rename, refactor)
+    local all_types = refactor.ts:get_local_types(declarator_node)
+
+    local old_name =
+        utils.trim(vim.treesitter.get_node_text(node_to_rename, refactor.bufnr)) --[[@as string]]
+
+    if old_name == nil then
+        -- just get the first key, there's probably multiple declarations
+        for key, _ in pairs(all_types) do
+            old_name = key
+            break
+        end
+    end
+
+    local type = all_types[old_name]
+
+    return type
+end
+
 ---@param declarator_node TSNode
 ---@param identifiers TSNode[]
 ---@param node_to_rename TSNode
@@ -107,10 +126,7 @@ local function get_inline_text_edits(
         end
     end
 
-    local all_types = refactor.ts:get_local_types(declarator_node)
-    local old_name =
-        utils.trim(vim.treesitter.get_node_text(node_to_rename, refactor.bufnr)) --[[@as string]]
-    local type = all_types[old_name]
+    local type = get_declaration_type(declarator_node, node_to_rename, refactor)
 
     local value_node_to_rename = all_values[identifier_pos]
     local value_text =
@@ -153,6 +169,7 @@ local function get_inline_text_edits(
                     multiple = true,
                     identifiers = new_identifiers_text,
                     values = new_values_text,
+                    type = type,
                 })) --[[@as string]]
             )
         )
