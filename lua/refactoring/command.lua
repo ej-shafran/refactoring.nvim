@@ -78,9 +78,8 @@ end
 
 ---@param arg_lead string
 ---@param cmd_line string
----@param _cursor_pos integer
 ---@return string[]
-local function command_complete(arg_lead, cmd_line, _cursor_pos)
+local function command_complete(arg_lead, cmd_line)
     local refactors = require("refactoring.refactor")
 
     local number_of_arguments = #vim.split(cmd_line, " ")

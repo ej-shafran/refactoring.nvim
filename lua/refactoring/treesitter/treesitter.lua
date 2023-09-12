@@ -67,7 +67,7 @@ function TreeSitter:new(config, bufnr)
         require_param_types = false,
         require_special_variable_format = false,
         require_special_var_format = false,
-        should_check_parent_node = function(_parent_type)
+        should_check_parent_node = function()
             return false
         end,
         include_end_of_line = false,
@@ -353,7 +353,7 @@ function TreeSitter:get_local_types(scope)
     local idents = self:loop_thru_filtered_nodes(
         scope,
         self.ident_with_type,
-        function(id, _node, query)
+        function(id, _, query)
             local name = query.captures[id]
             return name == "ident"
         end
@@ -361,7 +361,7 @@ function TreeSitter:get_local_types(scope)
     local types = self:loop_thru_filtered_nodes(
         scope,
         self.ident_with_type,
-        function(id, _node, query)
+        function(id, _, query)
             local name = query.captures[id]
             return name == "type"
         end
