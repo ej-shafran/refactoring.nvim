@@ -132,6 +132,10 @@ local function get_inline_text_edits(
     local value_text =
         vim.treesitter.get_node_text(value_node_to_rename, refactor.bufnr)
 
+    local is_mut = refactor.ts.is_mut(
+        vim.treesitter.get_node_text(declarator_node, refactor.bufnr)
+    )
+
     -- remove the whole declaration if there is only one identifier, else construct a new declaration
     if #identifiers == 1 then
         local new_string = refactor.code.variable({
@@ -139,9 +143,7 @@ local function get_inline_text_edits(
             name = new_name,
             -- values = all_values,
             value = value_text,
-            is_mut = refactor.ts.is_mut(
-                vim.treesitter.get_node_text(declarator_node, refactor.bufnr)
-            ),
+            is_mut = is_mut,
             type = type,
         })
         table.insert(
@@ -170,6 +172,7 @@ local function get_inline_text_edits(
                     identifiers = new_identifiers_text,
                     values = new_values_text,
                     type = type,
+                    is_mut = is_mut,
                 })) --[[@as string]]
             )
         )
