@@ -276,7 +276,7 @@ M.get_definitions_lookup_table = memoize(function(bufnr)
             local scopes = M.get_definition_scopes(
                 node_entry.node,
                 bufnr,
-                node_entry.scope
+                "global"
             )
             -- Always use the highest valid scope
             local scope = scopes[#scopes]
