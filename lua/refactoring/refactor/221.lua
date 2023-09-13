@@ -52,15 +52,15 @@ end
 ---@param identifiers TSNode[]
 ---@param bufnr integer
 ---@return TSNode|nil, integer|nil
-local function get_node_to_inline(identifiers, bufnr)
+local function get_node_to_rename(identifiers, bufnr)
     --- @type TSNode|nil, integer|nil
-    local node_to_inline, identifier_pos
+    local node_to_rename, identifier_pos
 
     if #identifiers == 1 then
         identifier_pos = 1
-        node_to_inline = identifiers[identifier_pos]
+        node_to_rename = identifiers[identifier_pos]
     else
-        node_to_inline, identifier_pos = get_select_input(
+        node_to_rename, identifier_pos = get_select_input(
             identifiers,
             "221: Select an identifier to rename:",
             ---@param node TSNode
@@ -71,7 +71,7 @@ local function get_node_to_inline(identifiers, bufnr)
         )
     end
 
-    return node_to_inline, identifier_pos
+    return node_to_rename, identifier_pos
 end
 
 ---@param declarator_node TSNode
@@ -108,7 +108,7 @@ end
 ---@param definition TSNode[]
 ---@param identifier_pos integer
 ---@return LspTextEdit[]
-local function get_inline_text_edits(
+local function get_rename_text_edits(
     declarator_node,
     identifiers,
     node_to_rename,
@@ -234,10 +234,10 @@ local function rename_setup(refactor)
     end
 
     local node_to_rename, identifier_pos =
-        get_node_to_inline(identifiers, refactor.bufnr)
+        get_node_to_rename(identifiers, refactor.bufnr)
 
     if node_to_rename == nil or identifier_pos == nil then
-        return false, "Couldn't determine node to inline"
+        return false, "Couldn't determine node to rename"
     end
 
     local definition = ts_locals.find_definition(node_to_rename, refactor.bufnr)
@@ -247,7 +247,7 @@ local function rename_setup(refactor)
         return false, "221: must have a new name"
     end
 
-    local text_edits = get_inline_text_edits(
+    local text_edits = get_rename_text_edits(
         declarator_node,
         identifiers,
         node_to_rename,
