@@ -79,14 +79,16 @@ end
 ---@param refactor Refactor
 ---@return string|nil
 local function get_return_type(declarator_node, refactor)
-    if not refactor.ts.return_types == nil then
+    if refactor.ts.return_types == nil then
         return nil
     end
 
-    return vim.treesitter.get_node_text(
-        refactor.ts:get_return_types(declarator_node)[1],
-        refactor.bufnr
-    )
+    local return_type_node = refactor.ts:get_return_types(declarator_node)[1]
+    if return_type_node == nil then
+        return nil
+    end
+
+    return vim.treesitter.get_node_text(return_type_node, refactor.bufnr)
 end
 
 ---@param declarator_node TSNode
@@ -260,18 +262,20 @@ local function rename_function_text_edits(
     )
 
     local return_type = get_return_type(declarator_node, refactor)
-    if refactor.ts:allows_indenting_task() then
-        refactor.whitespace.func_call =
-            indent.line_indent_amount(body[1], refactor.bufnr)
-    end
+    local first_line = body[1]
 
-    require("refactoring.refactor.106").indent_func_code({
-        name = new_name,
-        args = args,
-        body = body,
-        args_types = args_types,
-        return_type = return_type,
-    }, return_type ~= nil, refactor)
+    if first_line ~= nil and refactor.ts:allows_indenting_task() then
+        refactor.whitespace.func_call =
+            indent.line_indent_amount(first_line, refactor.bufnr)
+
+        require("refactoring.refactor.106").indent_func_code({
+            name = new_name,
+            args = args,
+            body = body,
+            args_types = args_types,
+            return_type = return_type,
+        }, return_type ~= nil, refactor)
+    end
 
     local new_string = refactor.code["function"]({
         name = new_name,
