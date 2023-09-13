@@ -95,11 +95,12 @@ local cpp = {
     ["function"] = function(opts)
         return string.format(
             [[
-void %s(%s) {
+%s %s(%s) {
 %s
 }
 
 ]],
+            opts.return_type or "void",
             opts.name,
             cpp_func_args(opts),
             code_utils.stringify_code(opts.body)

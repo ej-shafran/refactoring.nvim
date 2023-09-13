@@ -44,6 +44,9 @@ function C.new(bufnr, ft)
                 "(function_definition (function_declarator declarator: (_) @tmp_capture))"
             ),
         },
+        return_types = {
+            InlineNode("(function_definition type: (_) @tmp_capture)"),
+        },
         local_var_values = {
             InlineNode(
                 "(declaration declarator: (init_declarator value: (_) @tmp_capture))"

@@ -76,6 +76,20 @@ local function get_node_to_rename(identifiers, bufnr)
 end
 
 ---@param declarator_node TSNode
+---@param refactor Refactor
+---@return string|nil
+local function get_return_type(declarator_node, refactor)
+    if not refactor.ts.return_types == nil then
+        return nil
+    end
+
+    return vim.treesitter.get_node_text(
+        refactor.ts:get_return_types(declarator_node)[1],
+        refactor.bufnr
+    )
+end
+
+---@param declarator_node TSNode
 ---@param node_to_rename TSNode
 ---@param refactor Refactor
 local function get_declaration_type(declarator_node, node_to_rename, refactor)
@@ -198,6 +212,15 @@ local function rename_variable_text_edits(
     return text_edits
 end
 
+---@param nodes TSNode[]
+---@param bufnr integer
+---@return string[]
+local function nodes_to_text(nodes, bufnr)
+    return vim.tbl_map(function(node)
+        return vim.treesitter.get_node_text(node, bufnr)
+    end, nodes)
+end
+
 ---@param declarator_node TSNode
 ---@param new_name string
 ---@param refactor Refactor
@@ -211,9 +234,10 @@ local function rename_function_text_edits(
 )
     local text_edits = {}
 
-    local args = vim.tbl_map(function(arg)
-        return vim.treesitter.get_node_text(arg, refactor.bufnr)
-    end, refactor.ts:get_function_args(declarator_node))
+    local args = nodes_to_text(
+        refactor.ts:get_function_args(declarator_node),
+        refactor.bufnr
+    )
 
     local args_types = {}
 
@@ -230,10 +254,12 @@ local function rename_function_text_edits(
         end
     end
 
-    local body = vim.tbl_map(function(body)
-        return vim.treesitter.get_node_text(body, refactor.bufnr)
-    end, refactor.ts:get_function_body(declarator_node))
+    local body = nodes_to_text(
+        refactor.ts:get_function_body(declarator_node),
+        refactor.bufnr
+    )
 
+    local return_type = get_return_type(declarator_node, refactor)
     if refactor.ts:allows_indenting_task() then
         refactor.whitespace.func_call =
             indent.line_indent_amount(body[1], refactor.bufnr)
@@ -244,13 +270,15 @@ local function rename_function_text_edits(
         args = args,
         body = body,
         args_types = args_types,
-    }, false, refactor)
+        return_type = return_type,
+    }, return_type ~= nil, refactor)
 
     local new_string = refactor.code["function"]({
         name = new_name,
         args = args,
         body = body,
         args_types = args_types,
+        return_type = return_type,
     })
 
     table.insert(
