@@ -197,7 +197,7 @@ local function rename_variable_text_edits(
     return text_edits
 end
 
----@param renaming "function"|"variable"
+---@param renaming_type "function"|"variable"
 ---@param declarator_node TSNode
 ---@param identifiers TSNode[]
 ---@param node_to_rename TSNode
@@ -207,7 +207,7 @@ end
 ---@param identifier_pos integer
 ---@return LspTextEdit[]
 local function rename_text_edits(
-    renaming,
+    renaming_type,
     declarator_node,
     identifiers,
     node_to_rename,
@@ -216,7 +216,7 @@ local function rename_text_edits(
     definition,
     identifier_pos
 )
-    if renaming == "variable" then
+    if renaming_type == "variable" then
         return rename_variable_text_edits(
             declarator_node,
             identifiers,
@@ -233,23 +233,22 @@ end
 
 ---@param refactor Refactor
 ---@param declarator TSNode
----@param renaming "function"|"variable"
+---@param renaming_type "function"|"variable"
 ---@return TSNode[]
-local function get_identifiers(refactor, declarator, renaming)
-    if renaming == "variable" then
+local function get_identifiers(refactor, declarator, renaming_type)
+    if renaming_type == "variable" then
         return refactor.ts:get_local_var_names(declarator)
     else
         return {}
     end
 end
 
-
 ---@param refactor Refactor
 ---@return TSNode|nil declarator_node
----@return "function"|"variable"|nil renaming
+---@return "function"|"variable"|nil renaming_type
 local function get_declarator_node(refactor)
     --- @type "function"|"variable"
-    local renaming = "variable"
+    local renaming_type = "variable"
     --- @type TSNode|nil
     local declarator_node = refactor.ts:local_declarations_in_region(
         refactor.scope,
@@ -269,25 +268,26 @@ local function get_declarator_node(refactor)
             refactor.ts.get_container(definition, refactor.ts.variable_scope)
 
         if declarator_node == nil then
-            renaming = "function"
+            renaming_type = "function"
             declarator_node =
                 ts_locals.containing_scope(definition, refactor.bufnr, false)
         end
     end
 
-    return declarator_node, renaming
+    return declarator_node, renaming_type
 end
 
 ---@param refactor Refactor
 ---@return boolean, Refactor|string
 local function rename_setup(refactor)
-    local declarator_node, renaming = get_declarator_node(refactor)
+    local declarator_node, renaming_type = get_declarator_node(refactor)
 
-    if declarator_node == nil or renaming == nil then
+    if declarator_node == nil or renaming_type == nil then
         return false, "Couldn't determine declarator node"
     end
 
-    local identifiers = get_identifiers(refactor, declarator_node, renaming)
+    local identifiers =
+        get_identifiers(refactor, declarator_node, renaming_type)
 
     if #identifiers == 0 then
         return false, "No declarations in selected area"
@@ -308,7 +308,7 @@ local function rename_setup(refactor)
     end
 
     local text_edits = rename_text_edits(
-        renaming,
+        renaming_type,
         declarator_node,
         identifiers,
         node_to_rename,
