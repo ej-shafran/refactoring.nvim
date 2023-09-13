@@ -248,6 +248,8 @@ end
 ---@return TSNode|nil declarator_node
 ---@return "function"|"variable"|nil renaming
 local function get_declarator_node(refactor)
+    --- @type "function"|"variable"
+    local renaming = "variable"
     --- @type TSNode|nil
     local declarator_node = refactor.ts:local_declarations_in_region(
         refactor.scope,
@@ -267,11 +269,13 @@ local function get_declarator_node(refactor)
             refactor.ts.get_container(definition, refactor.ts.variable_scope)
 
         if declarator_node == nil then
-            return nil, nil
+            renaming = "function"
+            declarator_node =
+                ts_locals.containing_scope(definition, refactor.bufnr, false)
         end
     end
 
-    return declarator_node, "variable"
+    return declarator_node, renaming
 end
 
 ---@param refactor Refactor
@@ -283,7 +287,7 @@ local function rename_setup(refactor)
         return false, "Couldn't determine declarator node"
     end
 
-    local identifiers = get_identifiers(refactor, declarator_node, "variable")
+    local identifiers = get_identifiers(refactor, declarator_node, renaming)
 
     if #identifiers == 0 then
         return false, "No declarations in selected area"
