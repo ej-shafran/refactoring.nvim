@@ -13,16 +13,16 @@ local utils = require("refactoring.utils")
 local M = {}
 
 ---@param new_name string
----@param value_text string
+---@param new_value string
 ---@param identifiers TSNode[]
 ---@param values TSNode[]
 ---@param identifier_to_exclude TSNode[]
 ---@param bufnr integer
 ---@return string[] new_identifiers
 ---@return string[] new_values
-local function construct_new_declaration(
+local function multiple_variable_declaration(
     new_name,
-    value_text,
+    new_value,
     identifiers,
     values,
     identifier_to_exclude,
@@ -42,7 +42,7 @@ local function construct_new_declaration(
             )
         else
             table.insert(new_identifiers, new_name)
-            table.insert(new_values, value_text)
+            table.insert(new_values, new_value)
         end
     end
 
@@ -108,7 +108,7 @@ end
 ---@param definition TSNode[]
 ---@param identifier_pos integer
 ---@return LspTextEdit[]
-local function get_rename_text_edits(
+local function rename_variable_text_edits(
     declarator_node,
     identifiers,
     node_to_rename,
@@ -136,20 +136,17 @@ local function get_rename_text_edits(
     local type = get_declaration_type(declarator_node, node_to_rename, refactor)
 
     local value_node_to_rename = all_values[identifier_pos]
-    local value_text =
+    local new_value =
         vim.treesitter.get_node_text(value_node_to_rename, refactor.bufnr)
 
     local is_mut = refactor.ts.is_mut(
         vim.treesitter.get_node_text(declarator_node, refactor.bufnr)
     )
 
-    -- remove the whole declaration if there is only one identifier, else construct a new declaration
     if #identifiers == 1 then
         local new_string = refactor.code.variable({
-            -- identifiers = identifiers,
             name = new_name,
-            -- values = all_values,
-            value = value_text,
+            value = new_value,
             is_mut = is_mut,
             type = type,
         })
@@ -161,9 +158,9 @@ local function get_rename_text_edits(
             )
         )
     else
-        local new_identifiers_text, new_values_text = construct_new_declaration(
+        local new_identifiers, new_values = multiple_variable_declaration(
             new_name,
-            value_text,
+            new_value,
             identifiers,
             all_values,
             node_to_rename,
@@ -176,8 +173,8 @@ local function get_rename_text_edits(
                 Region:from_node(declarator_node, refactor.bufnr),
                 utils.trim(refactor.code.variable({
                     multiple = true,
-                    identifiers = new_identifiers_text,
-                    values = new_values_text,
+                    identifiers = new_identifiers,
+                    values = new_values,
                     type = type,
                     is_mut = is_mut,
                 })) --[[@as string]]
@@ -198,6 +195,52 @@ local function get_rename_text_edits(
         )
     end
     return text_edits
+end
+
+---@param renaming "function"|"variable"
+---@param declarator_node TSNode
+---@param identifiers TSNode[]
+---@param node_to_rename TSNode
+---@param new_name string
+---@param refactor Refactor
+---@param definition TSNode[]
+---@param identifier_pos integer
+---@return LspTextEdit[]
+local function rename_text_edits(
+    renaming,
+    declarator_node,
+    identifiers,
+    node_to_rename,
+    new_name,
+    refactor,
+    definition,
+    identifier_pos
+)
+    if renaming == "variable" then
+        return rename_variable_text_edits(
+            declarator_node,
+            identifiers,
+            node_to_rename,
+            new_name,
+            refactor,
+            definition,
+            identifier_pos
+        )
+    else
+        return {}
+    end
+end
+
+---@param refactor Refactor
+---@param declarator TSNode
+---@param renaming "function"|"variable"
+---@return TSNode[]
+local function get_identifiers(refactor, declarator, renaming)
+    if renaming == "variable" then
+        return refactor.ts:get_local_var_names(declarator)
+    else
+        return {}
+    end
 end
 
 ---@param refactor Refactor
@@ -227,7 +270,7 @@ local function rename_setup(refactor)
         end
     end
 
-    local identifiers = refactor.ts:get_local_var_names(declarator_node)
+    local identifiers = get_identifiers(refactor, declarator_node, "variable")
 
     if #identifiers == 0 then
         return false, "No declarations in selected area"
@@ -247,7 +290,8 @@ local function rename_setup(refactor)
         return false, "221: must have a new name"
     end
 
-    local text_edits = get_rename_text_edits(
+    local text_edits = rename_text_edits(
+        "variable",
         declarator_node,
         identifiers,
         node_to_rename,
