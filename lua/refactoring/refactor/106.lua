@@ -213,7 +213,11 @@ local function get_func_params(extract_params, refactor)
 
     -- TODO: Move this to main get_function_code function
     if refactor.ts:allows_indenting_task() then
-        M.indent_func_code(func_params, extract_params.has_return_vals, refactor)
+        M.indent_func_code(
+            func_params,
+            extract_params.has_return_vals,
+            refactor
+        )
     end
     return func_params
 end

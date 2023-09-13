@@ -273,11 +273,8 @@ M.get_definitions_lookup_table = memoize(function(bufnr)
     local result = {}
     for _, definition in ipairs(definitions) do
         for _, node_entry in ipairs(M.get_local_nodes(definition)) do
-            local scopes = M.get_definition_scopes(
-                node_entry.node,
-                bufnr,
-                "global"
-            )
+            local scopes =
+                M.get_definition_scopes(node_entry.node, bufnr, "global")
             -- Always use the highest valid scope
             local scope = scopes[#scopes]
             local node_text = ts.get_node_text(node_entry.node, bufnr)
