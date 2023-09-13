@@ -239,7 +239,7 @@ local function get_identifiers(refactor, declarator, renaming_type)
     if renaming_type == "variable" then
         return refactor.ts:get_local_var_names(declarator)
     else
-        return {}
+        return refactor.ts:get_function_names(declarator)
     end
 end
 

@@ -25,6 +25,7 @@ local Region = require("refactoring.region")
 ---@field require_class_type? boolean flag to require class type for codegen
 ---@field require_special_var_format? boolean: flag to require special variable format for codegen
 ---@field should_check_parent_node? fun(parent_type: string): boolean function to check if it's necesary to check the parent node
+---@field function_names InlineNodeFunc[] nodes to get function names
 ---@field include_end_of_line? boolean flag to indicate if end of line should be included in a region
 ---@field return_values InlineNodeFunc[] nodes that are return values
 ---@field function_references InlineNodeFunc[] nodes that are references of function
@@ -225,6 +226,11 @@ end
 function TreeSitter:get_return_statements(scope)
     self:validate_setting("return_statement")
     return self:loop_thru_nodes(scope, self.return_statement)
+end
+
+function TreeSitter:get_function_names(scope)
+    self:validate_setting("function_names")
+    return self:loop_thru_nodes(scope, self.function_names)
 end
 
 ---@param scope TSNode
