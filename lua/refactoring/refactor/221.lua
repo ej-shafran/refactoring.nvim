@@ -197,6 +197,10 @@ local function rename_variable_text_edits(
     return text_edits
 end
 
+local function rename_function_text_edits()
+    return {}
+end
+
 ---@param renaming_type "function"|"variable"
 ---@param declarator_node TSNode
 ---@param identifiers TSNode[]
@@ -227,7 +231,7 @@ local function rename_text_edits(
             identifier_pos
         )
     else
-        return {}
+        return rename_function_text_edits()
     end
 end
 
