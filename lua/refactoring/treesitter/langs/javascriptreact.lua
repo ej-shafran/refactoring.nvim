@@ -103,6 +103,9 @@ function JavascriptReact.new(bufnr, ft)
             ),
             InlineNode("(arrow_function (statement_block (_) @tmp_capture))"),
         },
+        function_names = {
+            InlineNode("(function_declaration name: (_) @tmp_capture)"),
+        },
         require_special_var_format = true,
         ---@param parent_type string
         ---@return boolean

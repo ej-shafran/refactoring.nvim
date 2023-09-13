@@ -88,6 +88,9 @@ function JavaScript.new(bufnr, ft)
 
             InlineNode("(arrow_function (statement_block (_) @tmp_capture))"),
         },
+        function_names = {
+            InlineNode("(function_declaration name: (_) @tmp_capture)"),
+        },
         is_mut = function(declaration)
             --stylua: ignore start
             return not vim.startswith(

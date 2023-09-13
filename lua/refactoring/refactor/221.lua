@@ -79,7 +79,7 @@ end
 ---@param refactor Refactor
 ---@return string|nil
 local function get_return_type(declarator_node, refactor)
-    if refactor.ts.return_types == nil then
+    if not refactor.ts:has_types() or refactor.ts.return_types == nil then
         return nil
     end
 
@@ -241,18 +241,21 @@ local function rename_function_text_edits(
         refactor.bufnr
     )
 
-    local args_types = {}
+    local args_types = nil
 
-    local local_types = refactor.ts:get_local_types(refactor.scope)
+    if refactor.ts:has_types() then
+        args_types = {}
+        local local_types = refactor.ts:get_local_types(refactor.scope)
 
-    for _, arg in pairs(args) do
-        --- @type string|nil
-        local curr_arg = refactor.ts.get_arg_type_key(arg)
-        local function_param_type = local_types[curr_arg]
-
-        if curr_arg ~= nil then
+        for _, arg in pairs(args) do
             --- @type string|nil
-            args_types[curr_arg] = function_param_type
+            local curr_arg = refactor.ts.get_arg_type_key(arg)
+            local function_param_type = local_types[curr_arg]
+
+            if curr_arg ~= nil then
+                --- @type string|nil
+                args_types[curr_arg] = function_param_type
+            end
         end
     end
 

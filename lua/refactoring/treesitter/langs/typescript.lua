@@ -58,6 +58,12 @@ function Typescript.new(bufnr, ft)
             ),
             InlineNode("(for_in_statement left: (identifier) @tmp_capture)"),
         },
+        function_names = {
+            InlineNode("(function_declaration name: (_) @tmp_capture)"),
+        },
+        return_types = {
+            InlineNode("(function_declaration return_type: (_) @tmp_capture)"),
+        },
         local_var_values = {
             InlineNode(
                 "(lexical_declaration (variable_declarator value: (_) @tmp_capture))"

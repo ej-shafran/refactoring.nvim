@@ -54,16 +54,17 @@ local function typescript_function(opts)
 
     return string.format(
         [[
-%sfunction %s(%s) {
+%sfunction %s(%s)%s {
 %s
 %s}
 
 ]],
-        opts.func_header,
+        opts.func_header or "",
         opts.name,
         table.concat(args, ", "),
+        opts.return_type or "",
         code_utils.stringify_code(opts.body),
-        opts.func_header
+        opts.func_header or ""
     )
 end
 
