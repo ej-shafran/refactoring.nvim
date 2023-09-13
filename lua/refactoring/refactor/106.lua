@@ -148,10 +148,11 @@ local function get_indent_prefix(refactor)
     return indent.indent(total_indents, refactor.bufnr)
 end
 
+-- TODO: maybe move this into utils?
 ---@param function_params func_params
 ---@param has_return_vals boolean
 ---@param refactor Refactor
-local function indent_func_code(function_params, has_return_vals, refactor)
+function M.indent_func_code(function_params, has_return_vals, refactor)
     if refactor.ts:is_indent_scope(refactor.scope) then
         -- Indent func header
         local func_header_indent = get_func_header_prefix(refactor)
@@ -212,7 +213,7 @@ local function get_func_params(extract_params, refactor)
 
     -- TODO: Move this to main get_function_code function
     if refactor.ts:allows_indenting_task() then
-        indent_func_code(func_params, extract_params.has_return_vals, refactor)
+        M.indent_func_code(func_params, extract_params.has_return_vals, refactor)
     end
     return func_params
 end

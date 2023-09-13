@@ -9,6 +9,7 @@ local lsp_utils = require("refactoring.lsp_utils")
 local ts_locals = require("refactoring.ts-locals")
 local get_select_input = require("refactoring.get_select_input")
 local utils = require("refactoring.utils")
+local indent = require("refactoring.indent")
 
 local M = {}
 
@@ -105,7 +106,7 @@ end
 ---@param node_to_rename TSNode
 ---@param new_name string
 ---@param refactor Refactor
----@param definition TSNode[]
+---@param definition TSNode
 ---@param identifier_pos integer
 ---@return LspTextEdit[]
 local function rename_variable_text_edits(
@@ -197,8 +198,70 @@ local function rename_variable_text_edits(
     return text_edits
 end
 
-local function rename_function_text_edits()
-    return {}
+---@param declarator_node TSNode
+---@param new_name string
+---@param refactor Refactor
+---@param definition TSNode
+---@return LspTextEdit[]
+local function rename_function_text_edits(
+    declarator_node,
+    new_name,
+    refactor,
+    definition
+)
+    local text_edits = {}
+
+    local args = vim.tbl_map(function(arg)
+        return vim.treesitter.get_node_text(arg, refactor.bufnr)
+    end, refactor.ts:get_function_args(declarator_node))
+
+    local args_types = {}
+
+    local local_types = refactor.ts:get_local_types(refactor.scope)
+
+    for _, arg in pairs(args) do
+        --- @type string|nil
+        local curr_arg = refactor.ts.get_arg_type_key(arg)
+        local function_param_type = local_types[curr_arg]
+
+        if curr_arg ~= nil then
+            --- @type string|nil
+            args_types[curr_arg] = function_param_type
+        end
+    end
+
+    local body = vim.tbl_map(function(body)
+        return vim.treesitter.get_node_text(body, refactor.bufnr)
+    end, refactor.ts:get_function_body(declarator_node))
+
+    if refactor.ts:allows_indenting_task() then
+        refactor.whitespace.func_call =
+            indent.line_indent_amount(body[1], refactor.bufnr)
+    end
+
+    require("refactoring.refactor.106").indent_func_code({
+        name = new_name,
+        args = args,
+        body = body,
+        args_types = args_types,
+    }, false, refactor)
+
+    local new_string = refactor.code["function"]({
+        name = new_name,
+        args = args,
+        body = body,
+        args_types = args_types,
+    })
+
+    table.insert(
+        text_edits,
+        lsp_utils.replace_text(Region:from_node(declarator_node), new_string)
+    )
+
+    -- local references =
+    --     ts_locals.find_usages(definition, refactor.scope, refactor.bufnr)
+
+    return text_edits
 end
 
 ---@param renaming_type "function"|"variable"
@@ -207,7 +270,7 @@ end
 ---@param node_to_rename TSNode
 ---@param new_name string
 ---@param refactor Refactor
----@param definition TSNode[]
+---@param definition TSNode
 ---@param identifier_pos integer
 ---@return LspTextEdit[]
 local function rename_text_edits(
@@ -231,7 +294,12 @@ local function rename_text_edits(
             identifier_pos
         )
     else
-        return rename_function_text_edits()
+        return rename_function_text_edits(
+            declarator_node,
+            new_name,
+            refactor,
+            definition
+        )
     end
 end
 
