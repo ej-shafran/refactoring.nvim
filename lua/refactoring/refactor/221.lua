@@ -444,7 +444,7 @@ end
 
 ---@param refactor Refactor
 local function ensure_code_gen_221(refactor)
-    local list = { "variable" }
+    local list = { "variable", "function" }
 
     return ensure_code_gen(refactor, list)
 end
