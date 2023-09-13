@@ -243,10 +243,11 @@ local function get_identifiers(refactor, declarator, renaming)
     end
 end
 
+
 ---@param refactor Refactor
----@return boolean, Refactor|string
-local function rename_setup(refactor)
-    -- only deal with first declaration
+---@return TSNode|nil declarator_node
+---@return "function"|"variable"|nil renaming
+local function get_declarator_node(refactor)
     --- @type TSNode|nil
     local declarator_node = refactor.ts:local_declarations_in_region(
         refactor.scope,
@@ -258,7 +259,7 @@ local function rename_setup(refactor)
         -- (which is under the cursor)
         local identifier_node = vim.treesitter.get_node()
         if identifier_node == nil then
-            return false, "Identifier_node is nil"
+            return nil, nil
         end
         local definition =
             ts_locals.find_definition(identifier_node, refactor.bufnr)
@@ -266,8 +267,20 @@ local function rename_setup(refactor)
             refactor.ts.get_container(definition, refactor.ts.variable_scope)
 
         if declarator_node == nil then
-            return false, "Couldn't determine declarator node"
+            return nil, nil
         end
+    end
+
+    return declarator_node, "variable"
+end
+
+---@param refactor Refactor
+---@return boolean, Refactor|string
+local function rename_setup(refactor)
+    local declarator_node, renaming = get_declarator_node(refactor)
+
+    if declarator_node == nil or renaming == nil then
+        return false, "Couldn't determine declarator node"
     end
 
     local identifiers = get_identifiers(refactor, declarator_node, "variable")
@@ -291,7 +304,7 @@ local function rename_setup(refactor)
     end
 
     local text_edits = rename_text_edits(
-        "variable",
+        renaming,
         declarator_node,
         identifiers,
         node_to_rename,
