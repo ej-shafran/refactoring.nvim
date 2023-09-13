@@ -286,8 +286,21 @@ local function rename_function_text_edits(
         lsp_utils.replace_text(Region:from_node(declarator_node), new_string)
     )
 
-    -- local references =
-    --     ts_locals.find_usages(definition, refactor.scope, refactor.bufnr)
+    local references =
+        ts_locals.find_usages(definition, refactor.scope, refactor.bufnr)
+
+    for _, ref in pairs(references) do
+        --- @type TSNode
+        local parent = ref:parent()
+        if refactor.ts.should_check_parent_node(parent:type()) then
+            ref = parent
+        end
+
+        table.insert(
+            text_edits,
+            lsp_utils.replace_text(Region:from_node(ref), new_name)
+        )
+    end
 
     return text_edits
 end
