@@ -283,7 +283,10 @@ local function rename_function_text_edits(
 
     table.insert(
         text_edits,
-        lsp_utils.replace_text(Region:from_node(declarator_node), new_string)
+        lsp_utils.replace_text(
+            Region:from_node(declarator_node),
+            utils.trim(new_string) --[[@as string]]
+        )
     )
 
     local references =
